@@ -1,0 +1,11 @@
+c:\users\administrator\documents\visual studio 2013\Projects\FileSystem\FileSystem\bin\Debug\FileSystem.exe.config
+c:\users\administrator\documents\visual studio 2013\Projects\FileSystem\FileSystem\obj\Debug\FileSystem.csprojResolveAssemblyReference.cache
+c:\users\administrator\documents\visual studio 2013\Projects\FileSystem\FileSystem\obj\Debug\FileSystem.Form1.resources
+c:\users\administrator\documents\visual studio 2013\Projects\FileSystem\FileSystem\obj\Debug\FileSystem.Properties.Resources.resources
+c:\users\administrator\documents\visual studio 2013\Projects\FileSystem\FileSystem\obj\Debug\FileSystem.csproj.GenerateResource.Cache
+c:\users\administrator\documents\visual studio 2013\Projects\FileSystem\FileSystem\bin\Debug\FileSystem.exe
+c:\users\administrator\documents\visual studio 2013\Projects\FileSystem\FileSystem\bin\Debug\FileSystem.pdb
+c:\users\administrator\documents\visual studio 2013\Projects\FileSystem\FileSystem\obj\Debug\FileSystem.exe
+c:\users\administrator\documents\visual studio 2013\Projects\FileSystem\FileSystem\obj\Debug\FileSystem.pdb
+C:\Users\Administrator\documents\visual studio 2013\Projects\FileSystem\FileSystem\obj\Debug\FileSystem.Form2.resources
+C:\Users\Administrator\documents\visual studio 2013\Projects\FileSystem\FileSystem\obj\Debug\FileSystem.Form3.resources
