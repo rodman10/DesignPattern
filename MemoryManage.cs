@@ -20,34 +20,74 @@ namespace FileSystem
         private ListView listView;
         private List<int> lastDir = new List<int>();        //记录上一个访问的文件
       
+        private void initDir( int index , int parent , int current )
+        {
+            datablock[index].createInode("..", parent);
+            datablock[index].createInode(".", current);
+        }
+
+        private void initBoot( Stream stream , BinaryFormatter formatter)
+        {
+            inode root = new inode();
+            List<int> b = new List<int>();
+            b.Add(1);
+            root.init(0, b, "文件夹" , DateTime.Now);
+            node[0] = root;
+            dataBlock data = new dataBlock();
+            blockMap.findUnuse(2);
+            List<int> nodes = nodeMap.findUnuse(1);
+            data.setBmap(blockMap);
+            data.setImap(nodeMap);
+            data.setNode(node);
+            datablock[0] = data;
+            datablock[1] = new dataBlock();
+            initDir( 1 , -1, nodes[0]);
+            formatter.Serialize(stream, datablock);   
+        }
+
 
         public MemoryManage(ListView listView) 
         {
             Stream stream = new FileStream("block.dat", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
             BinaryFormatter formatter = new BinaryFormatter();
             this.listView = listView;
-
-            //inode root = new inode();
-            //List<int> b = new List<int>();
-            //b.Add(1);
-            //root.init(0, b, "文件夹", -1, DateTime.Now);
-            //node[0] = root;
-            //dataBlock data = new dataBlock();
-            //blockMap.findUnuse(2);
-            //nodeMap.findUnuse(1);
-            //data.setBmap(blockMap);
-            //data.setImap(nodeMap);
-            //data.setNode(node);
-            //datablock[0] = data;
-            //datablock[1] = new dataBlock();
-            //formatter.Serialize(stream, datablock);
-            //stream.Close();
-
+            if( 0 == stream.Length)
+            {
+                initBoot(stream, formatter);
+            }
+            stream.Position = 0;
             datablock = (dataBlock[])formatter.Deserialize(stream);
             node = datablock[0].getNode();
             blockMap = datablock[0].getBmap();
             nodeMap = datablock[0].getImap();
             stream.Close();
+            listItems(workDir);
+            
+          
+        }
+
+
+        public void back()
+        {
+            int node_table_block = node[workDir].getBlock(0);     //inode_table所在块号
+            int parent = datablock[node_table_block].findInode("..");
+            if ( parent == -1)
+            {
+                return;
+            }
+            lastDir.Insert(0, workDir);
+            workDir = parent;
+            listItems(workDir);
+        }
+
+        public void forward()
+        {
+            if (lastDir.Count == 0)
+            {
+                return;
+            }
+            workDir = lastDir[0];
+            lastDir.RemoveAt(0);
             listItems(workDir);
         }
 
@@ -61,6 +101,11 @@ namespace FileSystem
                 if (_name == null)
                 {
                     break;
+                }
+
+                if( _name.Equals("..") || _name.Equals("."))
+                {
+                    continue;
                 }
                 int size = -1;
                 string type = node[datablock[_node.getBlock(0)].findInode(_name)].getType();
@@ -110,28 +155,37 @@ namespace FileSystem
             listView.Items.Add(item);  
         }
 
-        public Boolean createFile(string type,string _name)        //创建新的文件
+        public Boolean createEntry(string type,string _name)        //创建新的文件
         {
             int parent = -1;
             inode _node = null;
             if (_name != null)      //点击文件夹创建
             {
-                parent = datablock[node[workDir].getBlock(0)].findInode(_name);     //选中文件为父目录
+                parent = datablock[node[workDir].getBlock(0)].findInode(_name);     //选中文件夹为父目录
             }
             else        //直接新建
             {
                 parent = workDir;       //当前目录为父目录
             }
+
             _node=node[parent];
             List<int> nodeLoc=nodeMap.findUnuse(1);        //找到未使用的inode节点
             List<int> blockLoc=blockMap.findUnuse(1);       //找到空闲磁盘块
-            if (nodeLoc == null || blockLoc == null)       
+
+
+            if (nodeLoc == null || blockLoc == null)        //inodeMap或blockMap用尽  
             {
                 return false;
             }
+
+
             if (datablock[blockLoc[0]] == null)     //磁盘块未初始化
             {
                 datablock[blockLoc[0]] = new dataBlock();
+                if (type == "文件夹")
+                {
+                    initDir( blockLoc[0] , parent , nodeLoc[0]);
+                }
             }
             if (node[nodeLoc[0]] == null)       //inode为初始化
             {
@@ -145,7 +199,7 @@ namespace FileSystem
             }
             Stream stream = new FileStream("block.dat", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
             BinaryFormatter formatter = new BinaryFormatter();
-            node[nodeLoc[0]].init(nodeLoc[0], blockLoc, type, parent, DateTime.Now);
+            node[nodeLoc[0]].init(nodeLoc[0], blockLoc, type , DateTime.Now);
             formatter.Serialize(stream, datablock);
             stream.Close();
             return true;
@@ -281,26 +335,5 @@ namespace FileSystem
             return true;
         }
 
-        public void back()
-        {
-            if (node[workDir].getParent() == -1)
-            {
-                return;  
-            }
-            lastDir.Insert(0,workDir);
-            workDir = node[workDir].getParent();
-            listItems(workDir);
-        }
-
-        public void forward()
-        {
-            if (lastDir.Count == 0)
-            {
-                return;
-            }
-            workDir = lastDir[0];
-            lastDir.RemoveAt(0);
-            listItems(workDir);
-        }
     }
 }

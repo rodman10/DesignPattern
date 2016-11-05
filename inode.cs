@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace FileSystem
 {
@@ -12,14 +10,12 @@ namespace FileSystem
         private int id;     //用于标识inode的唯一编号
         private string type;        //文件还是文件夹
         private DateTime time;      //最后修改时间
-        private int parent;     //父级目录节点编号
         private int[] datablock = new int[13];      //存储位置
 
-        public void init(int id, List<int> block,string type,int _parent,DateTime time)
+        public void init(int id, List<int> block,string type , DateTime time)
         {
             this.id = id;
             this.type = type;
-            parent = _parent;
             this.time = time;
             for (int i = 0; i < block.Count; i++)
             {
@@ -37,10 +33,6 @@ namespace FileSystem
             return time;
         }
 
-        public int getParent()
-        {
-            return parent;
-        }
 
         public void setBlock(int realIndex, int virIndex)
         {
