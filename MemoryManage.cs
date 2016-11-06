@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
@@ -13,57 +12,71 @@ namespace FileSystem
     {
         private int workDir=0;      //当前工作目录
         private int selectedFile = 0;       //选中的文件或文件夹
-        private inode[] node = new inode[1024];         //第一个块中inode信息
-        private dataBlock[] datablock = new dataBlock[4096];        //模拟磁盘块的数组
+        private inode[] node;         //第一个块中inode信息
+        private dataBlock[] datablock;        //模拟磁盘块的数组
         private inodeBitmap nodeMap = new inodeBitmap();        //inode的位图
         private blockBitmap blockMap = new blockBitmap();       //磁盘块的位图
         private ListView listView;
         private List<int> lastDir = new List<int>();        //记录上一个访问的文件
-      
+
+
         private void initDir( int index , int parent , int current )
         {
             datablock[index].createInode("..", parent);
             datablock[index].createInode(".", current);
         }
 
-        private void initBoot( Stream stream , BinaryFormatter formatter)
+        private void initBoot()
         {
+            Stream stream=new FileStream("super.dat", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+            if(0 == stream.Length)
+            {
+                superBlock superblock = new superBlock(1024,4096);
+                dataBlock boot = new dataBlock();
+                boot.superblock = superblock;
+                datablock = new dataBlock[4096];
+                node = new inode[1024];
+                blockMap.findUnuse(1);
+                datablock[0] = boot;
+                
+            }
             inode root = new inode();
             List<int> b = new List<int>();
-            b.Add(1);
+            b.Add(4);
             root.init(0, b, "文件夹" , DateTime.Now);
             node[0] = root;
             dataBlock data = new dataBlock();
-            blockMap.findUnuse(2);
+            blockMap.findUnuse(4);
             List<int> nodes = nodeMap.findUnuse(1);
-            data.setBmap(blockMap);
-            data.setImap(nodeMap);
-            data.setNode(node);
-            datablock[0] = data;
+
             datablock[1] = new dataBlock();
-            initDir( 1 , -1, nodes[0]);
-            formatter.Serialize(stream, datablock);   
+            datablock[1].setImap(nodeMap);
+
+            datablock[2] = new dataBlock();
+            datablock[2].setBmap(blockMap);
+
+            datablock[3] = new dataBlock();
+            datablock[3].setNode(node);
+
+            datablock[4] = new dataBlock();
+            initDir( 4 , -1, nodes[0]);
+            IOFormatter.getInstance().Serialize(IOStream.getInstance(), datablock);
         }
 
 
         public MemoryManage(ListView listView) 
         {
-            Stream stream = new FileStream("block.dat", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
-            BinaryFormatter formatter = new BinaryFormatter();
             this.listView = listView;
-            if( 0 == stream.Length)
+            if( 0 == IOStream.getInstance().Length)
             {
-                initBoot(stream, formatter);
+                initBoot();
             }
-            stream.Position = 0;
-            datablock = (dataBlock[])formatter.Deserialize(stream);
-            node = datablock[0].getNode();
-            blockMap = datablock[0].getBmap();
-            nodeMap = datablock[0].getImap();
-            stream.Close();
-            listItems(workDir);
-            
-          
+
+            datablock = (dataBlock[])IOFormatter.getInstance().Deserialize(IOStream.getInstance());
+            node = datablock[3].getNode();
+            blockMap = datablock[2].getBmap();
+            nodeMap = datablock[1].getImap();
+            listItems(workDir);     
         }
 
 
@@ -197,11 +210,8 @@ namespace FileSystem
             {
                 setViewItem(name,type,0,DateTime.Now);
             }
-            Stream stream = new FileStream("block.dat", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
-            BinaryFormatter formatter = new BinaryFormatter();
-            node[nodeLoc[0]].init(nodeLoc[0], blockLoc, type , DateTime.Now);
-            formatter.Serialize(stream, datablock);
-            stream.Close();
+            node[nodeLoc[0]].init(nodeLoc[0], blockLoc, type, DateTime.Now);
+            IOFormatter.getInstance().Serialize(IOStream.getInstance(), datablock);
             return true;
         }
 
@@ -209,10 +219,7 @@ namespace FileSystem
         {
             inode _node = node[workDir];
             datablock[_node.getBlock(0)].reNameInode(newName, _index);      //在父目录的inodetable中进行修改
-            Stream stream = new FileStream("block.dat", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
-            BinaryFormatter formatter = new BinaryFormatter();
-            formatter.Serialize(stream, datablock);
-            stream.Close();
+            IOFormatter.getInstance().Serialize(IOStream.getInstance(), datablock);
         }
 
         public void removeFile(string name,inode n,int index)
@@ -244,11 +251,7 @@ namespace FileSystem
             List<int> b = _node.getBlockPtr().ToList<int>();        //获得该节点占用的全部块
             blockMap.release(b);        //释放块位图
             nodeMap.release(id);     //释放节点位图
-            Stream stream = new FileStream("block.dat", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
-            BinaryFormatter formatter = new BinaryFormatter();
-            formatter.Serialize(stream, datablock);
-            stream.Close();
-
+            IOFormatter.getInstance().Serialize(IOStream.getInstance(), datablock);
         }
 
         public Boolean reDirectCatalog(string name)     //切换文件目录或打开文件
@@ -279,7 +282,7 @@ namespace FileSystem
 
         public Boolean saveFile(string content)
         {
-            int num=node[selectedFile].getBlockNum();       //获取文件也有磁盘块数目
+            int num=node[selectedFile].getBlockNum();       //获取文件已有磁盘块数目
             byte[] buffer=Encoding.Default.GetBytes(content);
             int n=buffer.Length/100;        //计算所需磁盘块
             int offset=buffer.Length%100;
@@ -327,10 +330,7 @@ namespace FileSystem
                 }
             }
             node[selectedFile].setTime(DateTime.Now);
-            Stream stream = new FileStream("block.dat", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
-            BinaryFormatter formatter = new BinaryFormatter();
-            formatter.Serialize(stream, datablock);
-            stream.Close();
+            IOFormatter.getInstance().Serialize(IOStream.getInstance(), datablock);
             listItems(workDir);
             return true;
         }
