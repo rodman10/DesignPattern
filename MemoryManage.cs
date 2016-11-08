@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
 
 namespace FileSystem
@@ -33,7 +32,7 @@ namespace FileSystem
             {
                 superBlock superblock = new superBlock(1024,4096);
                 dataBlock boot = new dataBlock();
-                boot.superblock = superblock;
+                boot.data = superblock;
                 datablock = new dataBlock[4096];
                 node = new inode[1024];
                 blockMap.findUnuse(1);
@@ -50,13 +49,13 @@ namespace FileSystem
             List<int> nodes = nodeMap.findUnuse(1);
 
             datablock[1] = new dataBlock();
-            datablock[1].setImap(nodeMap);
+            datablock[1].data=nodeMap;
 
             datablock[2] = new dataBlock();
-            datablock[2].setBmap(blockMap);
+            datablock[2].data=blockMap;
 
             datablock[3] = new dataBlock();
-            datablock[3].setNode(node);
+            datablock[3].data=node;
 
             datablock[4] = new dataBlock();
             initDir( 4 , -1, nodes[0]);
@@ -73,9 +72,9 @@ namespace FileSystem
             }
 
             datablock = (dataBlock[])IOFormatter.getInstance().Deserialize(IOStream.getInstance());
-            node = datablock[3].getNode();
-            blockMap = datablock[2].getBmap();
-            nodeMap = datablock[1].getImap();
+            node = (inode[])datablock[3].data;
+            blockMap = (blockBitmap)datablock[2].data;
+            nodeMap = (inodeBitmap)datablock[1].data;
             listItems(workDir);     
         }
 
@@ -137,9 +136,9 @@ namespace FileSystem
             string content = "";
             for (int i = 0; i < 13; i++)        //遍历该文件的所有块，计算大小
             {
-                if (datablock[ptr[i]] != null && datablock[ptr[i]].getContent() != null && !datablock[ptr[i]].getContent().Equals(""))
+                if (datablock[ptr[i]] != null && datablock[ptr[i]].data != null && !datablock[ptr[i]].data.Equals(""))
                 {
-                    content += datablock[ptr[i]].getContent();
+                    content += datablock[ptr[i]].data;
                     continue;
                 }
                 break;
@@ -275,7 +274,7 @@ namespace FileSystem
             string content = "";
             for (int i = 0; i < num; i++)       //遍历磁盘块
             {
-                content += datablock[node[selectedFile].getBlock(i)].getContent();
+                content += datablock[node[selectedFile].getBlock(i)].data;
             }
             return content;
         }
@@ -321,12 +320,12 @@ namespace FileSystem
                         datablock[mem[0]]=new dataBlock();
                     }
                     node[selectedFile].setBlock(mem[0],i);      //为文件分配新的磁盘块
-                    datablock[mem[0]].setContent(con);      //存储信息
+                    datablock[mem[0]].data=con;      //存储信息
                     mem.RemoveAt(0);
                 }
                 else
                 {
-                    datablock[node[selectedFile].getBlock(i)].setContent(con);
+                    datablock[node[selectedFile].getBlock(i)].data=con;
                 }
             }
             node[selectedFile].setTime(DateTime.Now);
