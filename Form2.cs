@@ -12,13 +12,13 @@ namespace FileSystem
 {
     public partial class Form2 : Form
     {
-        private MemoryManage memory;
+        private IOController controller;
         private int index;
         private ListView view;
-        public Form2(ListView listView,MemoryManage memory,int index)
+        public Form2(ListView listView,IOController controller,int index)
         {
             InitializeComponent();
-            this.memory = memory;
+            this.controller = controller;
             this.view = listView;
             this.index = index;
         }
@@ -31,7 +31,7 @@ namespace FileSystem
                 MessageBox.Show("文件名不能为空");
                 return;
             }
-            memory.reNameFile(textBox1.Text, index);
+            controller.reNameEntry(textBox1.Text, index);
             view.Items[index].Text = _name;
             this.Close();
         }

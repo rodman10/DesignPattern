@@ -12,11 +12,11 @@ namespace FileSystem
 {
     public partial class Form1 : Form
     {
-        MemoryManage memory;
+        IOController controller;
         public Form1()
         {
             InitializeComponent();
-            memory = new MemoryManage(catalog);
+            controller = new IOController(catalog);
             ImageList myimagelist = new ImageList();
             myimagelist.Images.Add(Image.FromFile("dir.png"));
             myimagelist.Images.Add(Image.FromFile("file.png"));
@@ -60,16 +60,17 @@ namespace FileSystem
         private void catalog_DoubleClick(object sender, EventArgs e)
         {
             int selectIndex = catalog.FocusedItem.Index;
-            if (memory.reDirectCatalog(catalog.Items[selectIndex].Text))
+           
+            if (controller.reDirectCatalog(catalog.Items[selectIndex].Text))
             {
-                Form3 notePad = new Form3(memory);
+                Form3 notePad = new Form3(controller);
                 notePad.Show();
             }
         }
 
         private void noItemCreateFile_Click(object sender, EventArgs e)
         {
-            if (!memory.createEntry("文件", null))
+            if (!controller.createEntry("文件", null))
             {
                 MessageBox.Show("inode不足无法创建");
             }
@@ -79,19 +80,19 @@ namespace FileSystem
         {
             
             int selectIndex = catalog.FocusedItem.Index;
-            Form2 dialig = new Form2(catalog,memory,selectIndex);
+            Form2 dialig = new Form2(catalog,controller,selectIndex);
             dialig.Show();
         }
 
         private void remove_Click(object sender, EventArgs e)
         {
             int selectIndex = catalog.FocusedItem.Index;
-            memory.removeFile(catalog.Items[selectIndex].Text,null,selectIndex);
+            controller.removeEntry(catalog.Items[selectIndex].Text,null,selectIndex);
         }
 
         private void noItemCreateDir_Click(object sender, EventArgs e)
         {
-            if (!memory.createEntry("文件夹", null))
+            if (!controller.createEntry("文件夹", null))
             {
                 MessageBox.Show("inode不足无法创建");
             }
@@ -100,7 +101,7 @@ namespace FileSystem
         private void hasItemCreateFile_Click(object sender, EventArgs e)
         {
             int selectIndex = catalog.FocusedItem.Index;
-            if (!memory.createEntry("文件", catalog.Items[selectIndex].Text))
+            if (!controller.createEntry("文件", catalog.Items[selectIndex].Text))
             {
                 MessageBox.Show("inode不足无法创建");
             }
@@ -109,7 +110,7 @@ namespace FileSystem
         private void hasItemCreateDir_Click(object sender, EventArgs e)
         {
             int selectIndex = catalog.FocusedItem.Index;
-            if (!memory.createEntry("文件夹", catalog.Items[selectIndex].Text))
+            if (!controller.createEntry("文件夹", catalog.Items[selectIndex].Text))
             {
                 MessageBox.Show("inode不足无法创建");
             }
@@ -117,12 +118,12 @@ namespace FileSystem
 
         private void button1_Click(object sender, EventArgs e)
         {
-            memory.back();
+            controller.back();
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            memory.forward();
+            controller.forward();
         }
 
       
