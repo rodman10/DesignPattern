@@ -10,9 +10,7 @@ namespace FileSystem.EntryInterface
     {
 
         public List<Entry> entries {get; }
-        public string name { set; get; }
-        public int node { get; }
-        public DateTime time { get; }
+   
 
 
         public Directory(int nodeIndex,string name)
@@ -29,9 +27,7 @@ namespace FileSystem.EntryInterface
                 {
                     break;
                 }
-
-           
-              
+                
                 inode _node = MemoryInterface.getInstance().getInodeByIndex(MemoryInterface.getInstance().getInodeIndexByName(nodeIndex, _name));
            
 
@@ -48,27 +44,19 @@ namespace FileSystem.EntryInterface
             }
         }
 
-        public DateTime getTime()
-        {
-            return time;
-        }
+  
 
-        public string getName()
-        {
-            return name;
-        }
-
-        public string getType()
+        public override string getType()
         {
             return "文件夹";
         }
 
-        public int getSize()
+        public override int getSize()
         {
             return entries.Count;
         }
 
-        public object getContent()
+        public override object getContent()
         {
             return entries;
         }
@@ -175,11 +163,6 @@ namespace FileSystem.EntryInterface
 
     
 
-        
-
-        public bool write(string content)
-        {
-            return true;
-        }
+     
     }
 }

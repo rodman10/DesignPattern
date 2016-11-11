@@ -9,9 +9,6 @@ namespace FileSystem.EntryInterface
     class File:Entry
     {
         public int size{ get; set; }
-        public string name { get; }
-        public int node { get; }
-        public DateTime time { get; }
         public string content { get; set; }
 
         public File(inode _node , string name)
@@ -31,27 +28,17 @@ namespace FileSystem.EntryInterface
             this.content=content;
         }
 
-        public DateTime getTime()
-        {
-            return time;
-        }
-
-        public string getName()
-        {
-            return name;
-        }
-
-        public string getType()
+        public override string getType()
         {
             return "文件";
         }
 
-        public int getSize()
+        public override int getSize()
         {
             return size;
         }
 
-        public object getContent()
+        public override object getContent()
         {
             return content;
         }
@@ -73,39 +60,7 @@ namespace FileSystem.EntryInterface
             return sarr.Length;
         }
 
-        public string createEntry( string _name,string type )
-        {
-            return null;
-        }
 
-        public void reNameEntry(string newName, int _index)
-        {
-            
-        }
-
-        public void removeEntry(int workDir,string name, inode n)
-        {
-            inode _node = null;
-            if (n == null)
-            {
-                _node = MemoryInterface.getInstance().getInodeByIndex(workDir);
-
-            }
-            else
-            {
-                _node = n;
-            }
-            int id = MemoryInterface.getInstance().getDataBlockByIndex(_node.getBlock(0)).removeInode(name);      //找到删除文件的inode
-            _node = MemoryInterface.getInstance().getInodeByIndex(id);
-         
-            List<int> b = _node.getBlockPtr().ToList<int>();        //获得该节点占用的全部块
-            MemoryInterface.getInstance().releaseBlock(b);        //释放块位图
-            MemoryInterface.getInstance().releaseInode(id);     //释放节点位图
-            MemoryInterface.getInstance().write();
-        }
-
-    
-    
 
         public bool write(string content)
         {

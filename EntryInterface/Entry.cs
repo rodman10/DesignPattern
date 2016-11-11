@@ -6,24 +6,43 @@ using System.Threading.Tasks;
 
 namespace FileSystem.EntryInterface
 {
-    interface Entry
+    abstract class Entry
     {
-        DateTime getTime();
+        public string name { set; get; }
+        public int node { get; set; }
+        public DateTime time { get; set; }
 
-        string getName();
+        public DateTime getTime()
+        {
+            return time;
+        }
 
-        string getType();
+        public string getName()
+        {
+            return name;
+        }
 
-        int getSize();
+        public abstract string getType();
 
-        object getContent();
+        public abstract int getSize();
 
-        string createEntry(string _name,string type);
+        public abstract object getContent();
 
-        void reNameEntry(string newName, int _index);
+        public string createEntry(string _name,string type)
+        {
+            return null;
+        }
 
-        void removeEntry(int workDir, string name, inode n);
+        public void reNameEntry(string newName, int _index) { }
 
-        bool write(string content); 
+        public void removeEntry(int selectedItem , string name, inode n)
+        {
+
+        }
+
+        public bool write(string content)
+        {
+            return true;
+        }
     }
 }
