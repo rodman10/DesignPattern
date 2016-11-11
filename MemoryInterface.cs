@@ -9,8 +9,32 @@ namespace FileSystem
 {
     class MemoryInterface
     {
+
+        private static MemoryInterface memory;
+
+        
         protected dataBlock[] datablock = new dataBlock[4096];        //模拟磁盘块的数组
 
+        private MemoryInterface()
+        {
+            if (0 == IOStream.getInstance().Length)
+            {
+                boot();
+                
+            }
+
+            datablock = (dataBlock[])IOFormatter.getInstance().Deserialize(IOStream.getInstance());
+
+        }
+
+        public static MemoryInterface getInstance()
+        {
+            if (memory == null)
+            {
+                memory = new MemoryInterface();
+            }
+            return memory;
+        }
 
         private void initBoot()
         {
@@ -32,7 +56,7 @@ namespace FileSystem
 
         private void boot()
         {
-            Stream stream = new FileStream("super.dat", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+            Stream stream = new FileStream("block.dat", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
             
             if (0 == stream.Length)
             {
@@ -50,7 +74,7 @@ namespace FileSystem
             root.init(0, b, "文件夹", DateTime.Now);
             ((inode[])datablock[3].data)[0] = root;
             dataBlock data = new dataBlock();
-            ((inodeBitmap)datablock[1].data).findUnuse(4);
+            ((blockBitmap)datablock[2].data).findUnuse(4);
             List<int> nodes = ((inodeBitmap)datablock[1].data).findUnuse(1);
 
 
@@ -67,15 +91,13 @@ namespace FileSystem
 
         }
 
-        public void loadMemory()
+       public void cleanBlock( List<int> blocks)
         {
-            if (0 == IOStream.getInstance().Length)
+            foreach(int index in blocks)
             {
-                initBoot();
+                datablock[index].data = null;
             }
-
-            datablock = (dataBlock[])IOFormatter.getInstance().Deserialize(IOStream.getInstance());
-
+            
         }
         
         public void releaseInode(int index)

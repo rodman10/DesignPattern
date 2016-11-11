@@ -8,16 +8,22 @@ namespace FileSystem.EntryInterface
 {
     interface Entry
     {
+        DateTime getTime();
 
+        string getName();
 
-        string createEntry(int workDir,string _name);
+        string getType();
 
-        void reNameEntry(int workDir, string newName, int _index);
+        int getSize();
 
-        void removeEntry(int workDir, string name, inode n, int index);
+        object getContent();
 
-        string openEntry(string name, ref int selectedFile,ref int workDir);
+        string createEntry(string _name,string type);
 
-        bool write(string content,ref int selectedFile,ref int workDir); 
+        void reNameEntry(string newName, int _index);
+
+        void removeEntry(int workDir, string name, inode n);
+
+        bool write(string content); 
     }
 }

@@ -61,7 +61,7 @@ namespace FileSystem
         {
             int selectIndex = catalog.FocusedItem.Index;
            
-            if (controller.reDirectCatalog(catalog.Items[selectIndex].Text))
+            if (controller.reDirectCatalog(selectIndex))
             {
                 Form3 notePad = new Form3(controller);
                 notePad.Show();
@@ -87,7 +87,7 @@ namespace FileSystem
         private void remove_Click(object sender, EventArgs e)
         {
             int selectIndex = catalog.FocusedItem.Index;
-            controller.removeEntry(catalog.Items[selectIndex].Text,null,selectIndex);
+            controller.removeEntry(catalog.Items[selectIndex].Text,selectIndex);
         }
 
         private void noItemCreateDir_Click(object sender, EventArgs e)

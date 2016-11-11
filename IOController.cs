@@ -9,90 +9,63 @@ namespace FileSystem
 {
     public class IOController
     {
-        private int workDir=0;      //当前工作目录
-        private int selectedFile = 0;       //选中的文件或文件夹
-        private Entry entry;
+        private Directory workDir;      //当前工作目录
+        private File selectedItem;       //选中的文件或文件夹
+
         private ListView listView;
-        private List<int> lastDir = new List<int>();        //记录上一个访问的文件
-        private MemoryInterface memory = new MemoryInterface();
+        private List<Directory> backDir = new List<Directory>();        //记录上一个访问的文件
+        private List<Directory> frontDir = new List<Directory>();
 
 
         public IOController(ListView listView) 
         {
             this.listView = listView;
-            memory.loadMemory();    
-            listItems(workDir);     
+            workDir = new Directory(0,"root");
+            listItems();     
         }
 
 
         public void back()
         {
-            int node_table_block = memory.getInodeByIndex(workDir).getBlock(0);     //inode_table所在块号
-            int parent = memory.getDataBlockByIndex(node_table_block).findInode("..");
-            if ( parent == -1)
+            if ( frontDir.Count == 0)
             {
                 return;
             }
-            lastDir.Insert(0, workDir);
-            workDir = parent;
-            listItems(workDir);
+            backDir.Insert(0, workDir);
+            workDir = frontDir.ElementAt(0);
+            frontDir.RemoveAt(0);
+            
+            listItems();
         }
 
         public void forward()
         {
-            if (lastDir.Count == 0)
+            if (backDir.Count == 0)
             {
                 return;
             }
-            workDir = lastDir[0];
-            lastDir.RemoveAt(0);
-            listItems(workDir);
+            frontDir.Insert(0, workDir);
+            workDir = backDir.ElementAt(0);
+            backDir.RemoveAt(0);
+
+            listItems();
         }
 
-        private void listItems(int _index)          //列出文件夹下的文件
+        private void listItems()          //列出文件夹下的文件
         {
             listView.Items.Clear();
-            
-            for (int i = 0; ; i++)
+            List<Entry> entries = (List<Entry>)workDir.getContent();
+            for (int i = 0; i<entries.Count ; i++)
             {
-                string _name = memory.getDataBlockByIndex(memory.getInodeByIndex(_index).getBlock(0)).findInode(i);
-                if (_name == null)
-                {
-                    break;
-                }
-
-                if( _name.Equals("..") || _name.Equals("."))
-                {
-                    continue;
-                }
-                int size = -1;
-                inode _node = memory.getInodeByIndex(memory.getInodeIndexByName(_index, _name));
-                string type = _node.getType();
-                DateTime time = _node.getTime();
-                if(type.Equals("文件"))
-                {
-                    size=calculate(_node, _name);
-                }
-                setViewItem(_name, type,size,time);
+                Entry temp = entries.ElementAt<Entry>(i);
+                string name = temp.getName();
+                string type = temp.getType();
+                DateTime time = temp.getTime();
+                int size = temp.getSize();
+                setViewItem(name, type, size, time);                              
             }
         }
-
-        private int calculate(inode _node,string _name)     //计算文件大小
-        {
-            int[] ptr = _node.getBlockPtr();
-            string content = "";
-            for (int i = 0; i < 13; i++)        //遍历该文件的所有块，计算大小
-            {
-                if (memory.getDataBlockByIndex(ptr[i]) != null && memory.getDataBlockByIndex(ptr[i]).data != null && !memory.getDataBlockByIndex(ptr[i]).data.Equals(""))
-                {
-                    content += memory.getDataBlockByIndex(ptr[i]).data;
-                    continue;
-                }
-                break;
-            }
-            byte[] sarr = Encoding.Default.GetBytes(content);
-            return sarr.Length;
-        }
+        
 
         private void setViewItem(string _name, string type,int size,DateTime _time)     //显示文件属性
         {
@@ -116,15 +89,7 @@ namespace FileSystem
 
         public Boolean createEntry(string type,string _name)        //创建新的文件
         {
-            if (type.Equals("文件夹"))
-            {
-                entry = new Directory(ref memory);
-            }
-            else
-            {
-                entry = new File(ref memory);
-            }
-            string name = entry.createEntry(workDir, _name);
+            string name = workDir.createEntry(_name,type);
             if (name == null)
             {
                 return false;
@@ -140,44 +105,46 @@ namespace FileSystem
 
         public void reNameEntry(string newName,int _index)       //重命名文件
         {
-            entry = new Directory(ref memory);
-            entry.reNameEntry(workDir, newName, _index);
+            workDir.reNameEntry(newName, _index);
         }
 
-        public void removeEntry(string name,inode n,int index)
+        public void removeEntry(string name,int index)
         {
             listView.Items.RemoveAt(index);
-            entry = new Directory(ref memory);
-            entry.removeEntry(workDir, name, n, index);
+            workDir.removeEntry(index, name, null);
         }
 
-        public Boolean reDirectCatalog(string name)     //切换文件目录或打开文件
+        public Boolean reDirectCatalog(int selected)     //切换文件目录或打开文件
         {
-            entry = new Directory(ref memory);           
-            if (entry.openEntry(name,ref selectedFile,ref workDir)==null)
+            Entry temp = ((List<Entry>)workDir.getContent()).ElementAt<Entry>(selected);
+            if (temp.GetType().Name.Equals("File"))        //是文件直接打开
             {
-                return true;        //是文件直接打开
+                selectedItem = (File)temp;
+                return true;
             }
-            listItems(workDir);     //是文件夹进入目录
+            else
+            {
+                frontDir.Insert(0, workDir);
+                workDir = (Directory)temp;
+            }
+          
+            listItems();     //是文件夹进入目录
             return false;
         }
 
         public string readFile()
         {
-            entry = new File(ref memory);
-            return entry.openEntry(null, ref selectedFile, ref workDir);
-           
+            return (string)selectedItem.getContent();          
         }
 
         public Boolean saveFile(string content)
         {
-            entry = new File(ref memory);
             
-            if(entry.write(content , ref selectedFile,ref workDir) == false)
+            if(selectedItem.write(content) == false)
             {
                 return false;
             }
-            listItems(workDir);
+            listItems();
             return true;
         }
 

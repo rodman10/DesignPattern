@@ -8,119 +8,134 @@ namespace FileSystem.EntryInterface
 {
     class File:Entry
     {
+        public int size{ get; set; }
+        public string name { get; }
+        public int node { get; }
+        public DateTime time { get; }
+        public string content { get; set; }
 
-        private MemoryInterface memory = new MemoryInterface();
-
-        public File(ref MemoryInterface memory)
+        public File(inode _node , string name)
         {
-            this.memory = memory;
+            string type = _node.getType();
+            DateTime time = _node.getTime();
+            this.size = calculate(_node);
+            this.name = name;
+            this.node = _node.id;
+            this.time = _node.getTime();
+            int num = _node.getBlockNum();     //获取磁盘块数目
+            string content = "";
+            for (int i = 0; i < num; i++)       //遍历磁盘块
+            {
+                content += MemoryInterface.getInstance().getDataBlockByIndex(_node.getBlock(i)).data;
+            }
+            this.content=content;
         }
 
-        public string createEntry(int workDir, string _name)
+        public DateTime getTime()
         {
-            int parent = -1;
+            return time;
+        }
 
-            if (_name != null)      //点击文件夹创建
-            {
-                parent = memory.getInodeIndexByName(workDir, _name);     //选中文件夹为父目录
-            }
-            else        //直接新建
-            {
-                parent = workDir;       //当前目录为父目录
-            }
-
-            inode _node = memory.getInodeByIndex(parent);
-            List<int> nodeLoc = memory.getRequireInodes(1);        //找到未使用的inode节点
-            List<int> blockLoc = memory.getRequireBlocks(1);       //找到空闲磁盘块
-
-
-            if (nodeLoc == null || blockLoc == null)        //inodeMap或blockMap用尽  
-            {
-                return null;
-            }
-
-         
-
-            string name = "新建文件";
-            name = memory.addNewInodeTableItem(_node.getBlock(0), name, nodeLoc[0]);
-            memory.getInodeByIndex(nodeLoc[0]).init(nodeLoc[0], blockLoc, "文件", DateTime.Now);
-            memory.write();
+        public string getName()
+        {
             return name;
         }
 
-        public void reNameEntry(int workDir, string newName, int _index)
+        public string getType()
         {
-            inode _node = memory.getInodeByIndex(workDir);
-            memory.getDataBlockByIndex(_node.getBlock(0)).reNameInode(newName, _index);      //在父目录的inodetable中进行修改
-            memory.write();
+            return "文件";
         }
 
-        public void removeEntry(int workDir,string name, inode n, int index)
+        public int getSize()
+        {
+            return size;
+        }
+
+        public object getContent()
+        {
+            return content;
+        }
+
+        private int calculate(inode _node)     //计算文件大小
+        {
+            int[] ptr = _node.getBlockPtr();
+            string content = "";
+            for (int i = 0; i < 13; i++)        //遍历该文件的所有块，计算大小
+            {
+                if (MemoryInterface.getInstance().getDataBlockByIndex(ptr[i]) != null && MemoryInterface.getInstance().getDataBlockByIndex(ptr[i]).data != null && !MemoryInterface.getInstance().getDataBlockByIndex(ptr[i]).data.Equals(""))
+                {
+                    content += MemoryInterface.getInstance().getDataBlockByIndex(ptr[i]).data;
+                    continue;
+                }
+                break;
+            }
+            byte[] sarr = Encoding.Default.GetBytes(content);
+            return sarr.Length;
+        }
+
+        public string createEntry( string _name,string type )
+        {
+            return null;
+        }
+
+        public void reNameEntry(string newName, int _index)
+        {
+            
+        }
+
+        public void removeEntry(int workDir,string name, inode n)
         {
             inode _node = null;
             if (n == null)
             {
-                _node = memory.getInodeByIndex(workDir);
+                _node = MemoryInterface.getInstance().getInodeByIndex(workDir);
 
             }
             else
             {
                 _node = n;
             }
-            int id = memory.getDataBlockByIndex(_node.getBlock(0)).removeInode(name);      //找到删除文件的inode
-            _node = memory.getInodeByIndex(id);
-            for (int i = 0; ; i++)       //释放inodetable中信息
-            {
-                string _name = memory.getDataBlockByIndex(_node.getBlock(0)).findInode(0);
-                if (_name != null)
-                {
-                    removeEntry(workDir, _name, memory.getInodeByIndex(id), -1);
-                }
-                else
-                {
-                    break;
-                }
-            }
+            int id = MemoryInterface.getInstance().getDataBlockByIndex(_node.getBlock(0)).removeInode(name);      //找到删除文件的inode
+            _node = MemoryInterface.getInstance().getInodeByIndex(id);
+         
             List<int> b = _node.getBlockPtr().ToList<int>();        //获得该节点占用的全部块
-            memory.releaseBlock(b);        //释放块位图
-            memory.releaseInode(id);     //释放节点位图
-            memory.write();
+            MemoryInterface.getInstance().releaseBlock(b);        //释放块位图
+            MemoryInterface.getInstance().releaseInode(id);     //释放节点位图
+            MemoryInterface.getInstance().write();
         }
 
-        public string openEntry(string name, ref int selectedFile, ref int workDir)
-        {
-            int num = memory.getInodeByIndex(selectedFile).getBlockNum();     //获取磁盘块数目
-            string content = "";
-            for (int i = 0; i < num; i++)       //遍历磁盘块
-            {
-                content += memory.getDataBlockByIndex(memory.getInodeByIndex(selectedFile).getBlock(i)).data;
-            }
-            return content;
-        }
+    
+    
 
-        public bool write(string content, ref int selectedFile, ref int workDir)
+        public bool write(string content)
         {
-            int num = memory.getInodeByIndex(selectedFile).getBlockNum();       //获取文件已有磁盘块数目
+            this.content = content;
+            int num = MemoryInterface.getInstance().getInodeByIndex(node).getBlockNum();       //获取文件已有磁盘块数目
             byte[] buffer = Encoding.Default.GetBytes(content);
+            
             int n = buffer.Length / 100;        //计算所需磁盘块
             int offset = buffer.Length % 100;
             if (n > 13)
             {
                 return false;
             }
+            
             List<int> mem;
+
             if (offset > 0)
             {
-                mem = memory.getRequireBlocks(n + 1 - num);
+                mem = MemoryInterface.getInstance().getRequireBlocks(n + 1 - num);
             }
             else
             {
-                mem = memory.getRequireBlocks(n - num);
+                mem = MemoryInterface.getInstance().getRequireBlocks(n - num);
             }
+
             if (mem == null && n - num > 0)      //需要新块但找不到空的磁盘块
             {
                 return false;
             }
+
             for (int i = 0; i <= n; i++)
             {
                 string con;
@@ -132,20 +147,21 @@ namespace FileSystem.EntryInterface
                 {
                     con = Encoding.Default.GetString(buffer, 100 * i, offset);
                 }
-                if (memory.getInodeByIndex(selectedFile).getBlock(i) == 0)
+                if (MemoryInterface.getInstance().getInodeByIndex(node).getBlock(i) == 0)
                 {
-                    memory.getInodeByIndex(selectedFile).setBlock(mem[0], i);      //为文件分配新的磁盘块
-                    memory.getDataBlockByIndex(mem[0]).data = con;      //存储信息
+                    MemoryInterface.getInstance().getInodeByIndex(node).setBlock(mem[0], i);      //为文件分配新的磁盘块
+                    MemoryInterface.getInstance().getDataBlockByIndex(mem[0]).data = con;      //存储信息
                     mem.RemoveAt(0);
                 }
                 else
                 {
-                    memory.getDataBlockByIndex(memory.getInodeByIndex(selectedFile).getBlock(i)).data = con;
+                    MemoryInterface.getInstance().getDataBlockByIndex(MemoryInterface.getInstance().getInodeByIndex(node).getBlock(i)).data = con;
                 }
             }
-            memory.getInodeByIndex(selectedFile).setTime(DateTime.Now);
-            memory.write();
-            
+
+            MemoryInterface.getInstance().getInodeByIndex(node).setTime(DateTime.Now);
+            MemoryInterface.getInstance().write();
+            this.size = calculate(MemoryInterface.getInstance().getInodeByIndex(node));
             return true;
         }
     }

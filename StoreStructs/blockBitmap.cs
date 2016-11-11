@@ -43,7 +43,7 @@ namespace FileSystem
         public void release(List<int> index)        //释放块
         {
             for (int i = 0; i<index.Count; i++)
-            {
+            { 
                 if (index[i] != 0)
                 {
                     isUse[index[i]] = false;

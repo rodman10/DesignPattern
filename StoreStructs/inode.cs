@@ -7,7 +7,7 @@ namespace FileSystem
     [Serializable]
     public class inode
     {
-        private int id;     //用于标识inode的唯一编号
+        public int id { get; set; }     //用于标识inode的唯一编号
         private string type;        //文件还是文件夹
         private DateTime time;      //最后修改时间
         private int[] datablock = new int[13];      //存储位置
