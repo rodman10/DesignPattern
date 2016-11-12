@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 
 namespace FileSystem
@@ -125,7 +122,7 @@ namespace FileSystem
         public void setDataBlockByIndex(List<int> block_index,List<dataBlock> block)
         { 
             ((blockBitmap)datablock[2].data).obtain(block_index);
-            for (int i = 0; i < block_index.Count; i++)
+            for (int i = 0; i < block.Count; i++)
             {
                 datablock[block_index[i]] = block[i];
             }

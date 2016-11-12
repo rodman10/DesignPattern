@@ -8,21 +8,35 @@ namespace FileSystem.UndoStructs
 {
     class EditCmd:Cmd
     {
-        private string o_name;
-        private string n_name;
-        public EditCmd(inode p_node,string o_name,string n_name) : base(p_node)
+        private List<dataBlock> new_data;
+
+        public EditCmd(int node_index) : base(node_index)
         {
-            this.o_name = o_name;
-            this.n_name = n_name;
+            new_data = new List<dataBlock>();
+            for (int i = 0; i < 13; i++)
+            {
+                if (node.getBlock(i) == 0)
+                {
+                    break;
+                }
+                new_data.Add(MemoryInterface.getInstance().getDataBlockByIndex(node.getBlock(i)));
+            }
         }
         public override void undo()
         {
-            MemoryInterface.getInstance().getDataBlockByIndex(node.getBlock(0)).reNameInode(n_name,o_name);
+            base.undo();
+            MemoryInterface.getInstance().setInodeByIndex(node.id, node);
+            List<int> temp = new List<int>();
+            MemoryInterface.getInstance().setDataBlockByIndex(node.getBlockPtr().ToList<int>(),blocks);
+
         }
 
         public override void redo()
         {
-            MemoryInterface.getInstance().getDataBlockByIndex(node.getBlock(0)).reNameInode(o_name, n_name);
+            base.redo();
+            MemoryInterface.getInstance().setInodeByIndex(node.id, node);
+            List<int> temp = new List<int>();
+            MemoryInterface.getInstance().setDataBlockByIndex(node.getBlockPtr().ToList<int>(), new_data);
 
         }
 

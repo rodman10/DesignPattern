@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace FileSystem
 {
@@ -11,6 +12,21 @@ namespace FileSystem
         private string type;        //文件还是文件夹
         private DateTime time;      //最后修改时间
         private int[] datablock = new int[13];      //存储位置
+
+        public object Clone()
+        {
+            using (MemoryStream stream = new MemoryStream())
+            {
+                if (this.GetType().IsSerializable)
+                {
+                    BinaryFormatter formatter = new BinaryFormatter();
+                    formatter.Serialize(stream, this);
+                    stream.Position = 0;
+                    return formatter.Deserialize(stream);
+                }
+                return null;
+            }
+        }
 
         public void init(int id, List<int> block,string type , DateTime time)
         {

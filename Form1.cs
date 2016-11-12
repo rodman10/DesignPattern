@@ -126,12 +126,12 @@ namespace FileSystem
 
         private void undo_Click(object sender, EventArgs e)
         {
-
+            controller.undo();
         }
 
         private void redo_Click(object sender, EventArgs e)
         {
-
+            controller.redo();
         }
     }
 }

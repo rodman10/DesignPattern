@@ -1,16 +1,38 @@
 ﻿using System;
-
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace FileSystem
 {
     [Serializable]
-    class dataBlock
+    class dataBlock:ICloneable
     {
         public object data { set; get; }
 
-        public void reNameInode(string newName,int _index)
+
+        public object Clone()
         {
-            ((inodeTable)data).reNameInode(newName, _index);
+            using (MemoryStream stream = new MemoryStream())
+            {
+                if (this.GetType().IsSerializable)
+                {
+                    BinaryFormatter formatter = new BinaryFormatter();
+                    formatter.Serialize(stream, this);
+                    stream.Position = 0;
+                    return formatter.Deserialize(stream);
+                }
+                return null;
+            }
+        }
+
+        public string reNameInode(string newName,int _index)
+        {
+            return ((inodeTable)data).reNameInode(newName, _index);
+        }
+
+        public int reNameInode(string n_name, string o_name)
+        {
+            return ((inodeTable)data).reNameInode(n_name, o_name);
         }
 
         public int findInode(string name)
@@ -41,11 +63,6 @@ namespace FileSystem
         public int removeInode(string name)
         {
             return ((inodeTable)data).removeInode(name);
-        }
-    
-        public void reNameInode(string n_name,string o_name)
-        {
-            ((inodeTable)data).reNameInode(n_name, o_name);
-        }
+        }       
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using FileSystem.UndoStructs;
 using System.Windows.Forms;
 using FileSystem.EntryInterface;
 
@@ -31,8 +31,9 @@ namespace FileSystem
             {
                 return;
             }
+            UndoManager.getInstance().die();
             backDir.Insert(0, workDir);
-            workDir = frontDir.ElementAt(0);
+            workDir = frontDir[0];
             frontDir.RemoveAt(0);
             
             listItems();
@@ -44,8 +45,9 @@ namespace FileSystem
             {
                 return;
             }
+            UndoManager.getInstance().die();
             frontDir.Insert(0, workDir);
-            workDir = backDir.ElementAt(0);
+            workDir = backDir[0];
             backDir.RemoveAt(0);
 
             listItems();
@@ -111,7 +113,7 @@ namespace FileSystem
         public void removeEntry(string name,int index)
         {
             listView.Items.RemoveAt(index);
-            workDir.removeEntry(index, name, null);
+            workDir.removeEntry(index, name);
         }
 
         public Boolean reDirectCatalog(int selected)     //切换文件目录或打开文件
@@ -146,6 +148,25 @@ namespace FileSystem
             }
             listItems();
             return true;
+        }
+
+        public void undo()
+        {
+            if (UndoManager.getInstance().CanUndo())
+            {
+                UndoManager.getInstance().undo();
+                MemoryInterface.getInstance().write();
+            }
+            
+        }
+
+        public void redo()
+        {
+            if (UndoManager.getInstance().CanRedo())
+            {
+                UndoManager.getInstance().redo();
+                MemoryInterface.getInstance().write();
+            }
         }
 
     }

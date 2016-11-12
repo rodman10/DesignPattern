@@ -79,10 +79,11 @@
     <Compile Include="StoreStructs\superBlock.cs" />
     <Compile Include="UndoStructs\AddCmd.cs" />
     <Compile Include="UndoStructs\Cmd.cs" />
-    <Compile Include="UndoStructs\CompoundEdit.cs" />
+    <Compile Include="UndoStructs\CompoundCmd.cs" />
     <Compile Include="UndoStructs\DeleteCmd.cs" />
     <Compile Include="UndoStructs\EditCmd.cs" />
-    <Compile Include="UndoStructs\UndoableEdit.cs" />
+    <Compile Include="UndoStructs\UndoableCmd.cs" />
+    <Compile Include="UndoStructs\UndoManager.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>

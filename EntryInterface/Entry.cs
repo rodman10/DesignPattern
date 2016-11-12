@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace FileSystem.EntryInterface
 {
@@ -35,7 +32,7 @@ namespace FileSystem.EntryInterface
 
         public void reNameEntry(string newName, int _index) { }
 
-        public void removeEntry(int selectedItem , string name, inode n)
+        public void removeEntry(int selectedItem , string name)
         {
 
         }

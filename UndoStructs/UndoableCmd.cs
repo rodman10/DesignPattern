@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace FileSystem.UndoStructs
 {
-    interface UndoableEdit
+    interface UndoableCmd
     {
         void undo();
         bool CanUndo();
         void redo();
         bool CanRedo();
         void die();
-        void addEdit();
+        void newOpe(UndoableCmd cmd);
 
 
     }

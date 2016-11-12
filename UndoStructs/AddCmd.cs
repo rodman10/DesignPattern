@@ -8,21 +8,23 @@ namespace FileSystem.UndoStructs
 {
     class AddCmd:Cmd
     {
-        public AddCmd(inode node):base(node)
+        public AddCmd(int node_index):base(node_index)
         {
             
         }
 
-        public override void undo()
+        public override void redo()
         {
+            base.redo();
             MemoryInterface.getInstance().setInodeByIndex(node.id, node);
             List<int> temp = new List<int>();
             MemoryInterface.getInstance().setDataBlockByIndex(node.getBlockPtr().ToList<int>(), blocks);
 
         }
 
-        public override void redo()
+        public override void undo()
         {
+            base.undo();
             MemoryInterface.getInstance().releaseInode(node.id);
             List<int> temp = new List<int>();
             MemoryInterface.getInstance().releaseBlock(node.getBlockPtr().ToList<int>());

@@ -6,16 +6,17 @@ using System.Threading.Tasks;
 
 namespace FileSystem.UndoStructs
 {
-    abstract class Cmd:UndoableEdit
+    abstract class Cmd:UndoableCmd
     {
-        protected bool canUndo = false;
+        protected bool canUndo = true;
         protected bool canRedo = false;
         protected inode node;
         protected List<dataBlock> blocks;
 
-        public Cmd(inode node)
+        public Cmd(int node_index)
         {
-            this.node = node;
+            inode node = MemoryInterface.getInstance().getInodeByIndex(node_index);
+            this.node = (inode)node.Clone();
             this.blocks = new List<dataBlock>();
             for (int i = 0; i < 13; i++)
             {
@@ -23,17 +24,25 @@ namespace FileSystem.UndoStructs
                 {
                     break;
                 }
-                blocks.Add(MemoryInterface.getInstance().getDataBlockByIndex(node.getBlock(i)));
+                blocks.Add((dataBlock)MemoryInterface.getInstance().getDataBlockByIndex(node.getBlock(i)).Clone());
             }
         }
 
-        public abstract void undo();
+        public virtual void undo()
+        {
+            canRedo = true;
+        }
      
         public bool CanUndo()
         {
             return canUndo;
         }
-        public abstract void redo();
+
+        public virtual void redo()
+        {
+
+            canUndo = true;
+        }
 
         public bool CanRedo()
         {
@@ -43,7 +52,7 @@ namespace FileSystem.UndoStructs
         {
 
         }
-        public void addEdit()
+        public void newOpe(UndoableCmd cmd)
         {
 
         }

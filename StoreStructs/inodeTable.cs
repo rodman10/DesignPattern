@@ -18,9 +18,18 @@ namespace FileSystem
                 id = new List<int>();
             }
         }
-        public void reNameInode(string newName, int _index)
+        public string reNameInode(string newName, int _index)
         {
+            string temp = name[_index];
             name[_index] = newName;
+            return temp;
+        }
+
+        public int reNameInode(string n_name, string o_name)
+        {
+            int temp = name.IndexOf(o_name);
+            name[temp] = n_name;
+            return temp;
         }
 
         public int findInode(string _name)      //根据文件名查找节点
@@ -98,9 +107,6 @@ namespace FileSystem
             return _id;
         }
 
-        public void reNameInode(string n_name, string o_name)
-        {
-            name[name.IndexOf(o_name)] = n_name;
-        }
+        
     }
 }
