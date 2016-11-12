@@ -15,12 +15,13 @@ namespace FileSystem
         private ListView listView;
         private List<Directory> backDir = new List<Directory>();        //记录上一个访问的文件
         private List<Directory> frontDir = new List<Directory>();
-
+    
 
         public IOController(ListView listView) 
         {
             this.listView = listView;
             workDir = new Directory(0,"root");
+            EntryCmd.getInstance().newOpe(workDir);
             listItems();     
         }
 
@@ -35,7 +36,7 @@ namespace FileSystem
             backDir.Insert(0, workDir);
             workDir = frontDir[0];
             frontDir.RemoveAt(0);
-            
+            EntryCmd.getInstance().die();
             listItems();
         }
 
@@ -49,7 +50,7 @@ namespace FileSystem
             frontDir.Insert(0, workDir);
             workDir = backDir[0];
             backDir.RemoveAt(0);
-
+            EntryCmd.getInstance().die();
             listItems();
         }
 
@@ -91,6 +92,7 @@ namespace FileSystem
 
         public Boolean createEntry(string type,string _name)        //创建新的文件
         {
+            
             string name = workDir.createEntry(_name,type);
             if (name == null)
             {
@@ -101,19 +103,23 @@ namespace FileSystem
             {
                 setViewItem(name,type,0,DateTime.Now);
             }
-            
+            EntryCmd.getInstance().newOpe(workDir);
             return true;
         }
 
         public void reNameEntry(string newName,int _index)       //重命名文件
         {
+            
             workDir.reNameEntry(newName, _index);
+            EntryCmd.getInstance().newOpe(workDir);
         }
 
         public void removeEntry(string name,int index)
         {
+            
             listView.Items.RemoveAt(index);
             workDir.removeEntry(index, name);
+            EntryCmd.getInstance().newOpe(workDir);
         }
 
         public Boolean reDirectCatalog(int selected)     //切换文件目录或打开文件
@@ -126,6 +132,7 @@ namespace FileSystem
             }
             else
             {
+                EntryCmd.getInstance().die();
                 frontDir.Insert(0, workDir);
                 workDir = (Directory)temp;
             }
@@ -155,6 +162,8 @@ namespace FileSystem
             if (UndoManager.getInstance().CanUndo())
             {
                 UndoManager.getInstance().undo();
+                workDir = EntryCmd.getInstance().undo();
+                listItems();
                 MemoryInterface.getInstance().write();
             }
             
@@ -165,6 +174,9 @@ namespace FileSystem
             if (UndoManager.getInstance().CanRedo())
             {
                 UndoManager.getInstance().redo();
+                workDir = EntryCmd.getInstance().redo();
+      
+                listItems();
                 MemoryInterface.getInstance().write();
             }
         }

@@ -3,7 +3,8 @@
 
 namespace FileSystem.EntryInterface
 {
-    abstract class Entry
+    [Serializable]
+    abstract class Entry:ICloneable
     {
         public string name { set; get; }
         public int node { get; set; }
@@ -19,25 +20,30 @@ namespace FileSystem.EntryInterface
             return name;
         }
 
+        public virtual object Clone()
+        {
+            return null;
+        }
+
         public abstract string getType();
 
         public abstract int getSize();
 
         public abstract object getContent();
 
-        public string createEntry(string _name,string type)
+        public virtual string createEntry(string _name,string type)
         {
             return null;
         }
 
-        public void reNameEntry(string newName, int _index) { }
+        public virtual void reNameEntry(string newName, int _index) { }
 
-        public void removeEntry(int selectedItem , string name)
+        public virtual void removeEntry(int selectedItem , string name)
         {
 
         }
 
-        public bool write(string content)
+        public virtual bool write(string content)
         {
             return true;
         }

@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace FileSystem.UndoStructs
 {
-    abstract class Cmd:UndoableCmd
+    abstract class Cmd:AbstractUndoableCmd
     {
-        protected bool canUndo = true;
-        protected bool canRedo = false;
         protected inode node;
         protected List<dataBlock> blocks;
 
@@ -28,31 +26,23 @@ namespace FileSystem.UndoStructs
             }
         }
 
-        public virtual void undo()
+        public override void undo()
         {
             canRedo = true;
         }
      
-        public bool CanUndo()
-        {
-            return canUndo;
-        }
+      
 
-        public virtual void redo()
+        public override void redo()
         {
-
             canUndo = true;
         }
 
-        public bool CanRedo()
-        {
-            return canRedo;
-        }
-        public void die()
+        public override void die()
         {
 
         }
-        public void newOpe(UndoableCmd cmd)
+        public override void newOpe(UndoableCmd cmd)
         {
 
         }

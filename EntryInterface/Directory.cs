@@ -2,14 +2,31 @@
 using System.Collections.Generic;
 using System.Linq;
 using FileSystem.UndoStructs;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace FileSystem.EntryInterface
 {
+    [Serializable]
     class Directory:Entry
     {
 
         public List<Entry> entries {get; }
-   
+
+        public override object Clone()
+        {
+            using (MemoryStream stream = new MemoryStream())
+            {
+                if (this.GetType().IsSerializable)
+                {
+                    BinaryFormatter formatter = new BinaryFormatter();
+                    formatter.Serialize(stream, this);
+                    stream.Position = 0;
+                    return formatter.Deserialize(stream);
+                }
+                return null;
+            }
+        }
 
         public Directory(int nodeIndex,string name)
         {
@@ -69,7 +86,7 @@ namespace FileSystem.EntryInterface
             return name;
         }
 
-        public string createEntry(string _name ,string type)
+        public override string createEntry(string _name ,string type)
         {
             int parent = -1;
             UndoableCmd cmd1= new EditCmd(node);
@@ -114,11 +131,12 @@ namespace FileSystem.EntryInterface
             return name;
         }
 
-        public void reNameEntry(string newName,int _index)
+        public override void reNameEntry(string newName,int _index)
         {
             inode _node = MemoryInterface.getInstance().getInodeByIndex(node);
-            string oldName=MemoryInterface.getInstance().getDataBlockByIndex(_node.getBlock(0)).reNameInode(newName, _index);      //在父目录的inodetable中进行修改
             UndoManager.getInstance().newOpe(new EditCmd(node));
+            string oldName=MemoryInterface.getInstance().getDataBlockByIndex(_node.getBlock(0)).reNameInode(newName, _index+2);      //在父目录的inodetable中进行修改
+            
             MemoryInterface.getInstance().write();
         }
 
@@ -152,7 +170,7 @@ namespace FileSystem.EntryInterface
             MemoryInterface.getInstance().releaseInode(id);     //释放节点位图           
         }
 
-        public void removeEntry(int selectedItem,string name)
+        public override void removeEntry(int selectedItem,string name)
         {            
             entries.RemoveAt(selectedItem);
             CompoundCmd cmd = new CompoundCmd();

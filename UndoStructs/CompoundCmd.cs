@@ -3,30 +3,17 @@
 
 namespace FileSystem.UndoStructs
 {
-    class CompoundCmd:UndoableCmd
+    class CompoundCmd:AbstractUndoableCmd
     {
         protected List<UndoableCmd> opes;
         protected int index=0;
-        protected bool canUndo = false;
-        protected bool canRedo = false;
 
         public CompoundCmd()
         {
             opes = new List<UndoableCmd>();
         }
 
-        public bool CanUndo()
-        {
-            return canUndo;
-        }
-
-        public bool CanRedo()
-        {
-            return canRedo;
-        }
-
-        public virtual void undo()
-
+        public override void undo()
         {
             while (true)
             {
@@ -45,7 +32,7 @@ namespace FileSystem.UndoStructs
             
         }
         
-        public virtual void redo()
+        public override void redo()
         {
             while (true)
             {
@@ -63,14 +50,14 @@ namespace FileSystem.UndoStructs
             }
         }
         
-        public void die()
+        public override void die()
         {
             opes.Clear();
             canRedo = canRedo = false;
 
         }
 
-        public void newOpe(UndoableCmd cmd)
+        public override void newOpe(UndoableCmd cmd)
         {
             if (index > 0)
             {
@@ -78,6 +65,7 @@ namespace FileSystem.UndoStructs
             }
             index = 0;
             canUndo = true;
+            canRedo = false;
             opes.Insert(0, cmd);
             
         }

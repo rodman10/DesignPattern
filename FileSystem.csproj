@@ -77,11 +77,13 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StoreStructs\superBlock.cs" />
+    <Compile Include="UndoStructs\AbstractUndoableCmd.cs" />
     <Compile Include="UndoStructs\AddCmd.cs" />
     <Compile Include="UndoStructs\Cmd.cs" />
     <Compile Include="UndoStructs\CompoundCmd.cs" />
     <Compile Include="UndoStructs\DeleteCmd.cs" />
     <Compile Include="UndoStructs\EditCmd.cs" />
+    <Compile Include="UndoStructs\EntryCmd.cs" />
     <Compile Include="UndoStructs\UndoableCmd.cs" />
     <Compile Include="UndoStructs\UndoManager.cs" />
     <EmbeddedResource Include="Form1.resx">

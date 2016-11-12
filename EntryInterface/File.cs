@@ -62,7 +62,7 @@ namespace FileSystem.EntryInterface
 
 
 
-        public bool write(string content)
+        public override bool write(string content)
         {
             this.content = content;
             int num = MemoryInterface.getInstance().getInodeByIndex(node).getBlockNum();       //获取文件已有磁盘块数目
