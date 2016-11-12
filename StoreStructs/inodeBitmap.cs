@@ -40,15 +40,15 @@ namespace FileSystem
             return null;
         }
 
-        public void release(List<int> index)        //释放块
+        public void release(int index)        //释放块
         {
-            for (int i = 0; i<index.Count; i++)
-            {
-                if (index[i] != 0)
-                {
-                    isUse[index[i]] = false;
-                }
-            }
+            isUse[index] = false;
+        }
+
+        public void obtain(int index)        //持有块
+        {
+            isUse[index] = true;
+             
         }
     }
 }

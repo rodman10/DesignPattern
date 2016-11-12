@@ -43,5 +43,9 @@ namespace FileSystem
             return ((inodeTable)data).removeInode(name);
         }
     
+        public void reNameInode(string n_name,string o_name)
+        {
+            ((inodeTable)data).reNameInode(n_name, o_name);
+        }
     }
 }

@@ -50,6 +50,17 @@ namespace FileSystem
                 }
             }
         }
- 
+
+        public void obtain(List<int> index)        //持有块
+        {
+            for (int i = 0; i < index.Count; i++)
+            {
+                if (index[i] != 0)
+                {
+                    isUse[index[i]] = true;
+                }
+            }
+        }
+
     }
 }

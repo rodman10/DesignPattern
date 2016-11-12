@@ -37,11 +37,13 @@
             this.hasItem = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.rename = new System.Windows.Forms.ToolStripMenuItem();
             this.remove = new System.Windows.Forms.ToolStripMenuItem();
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
             this.新建ToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.hasItemCreateFile = new System.Windows.Forms.ToolStripMenuItem();
             this.hasItemCreateDir = new System.Windows.Forms.ToolStripMenuItem();
+            this.button1 = new System.Windows.Forms.Button();
+            this.button2 = new System.Windows.Forms.Button();
+            this.button3 = new System.Windows.Forms.Button();
+            this.button4 = new System.Windows.Forms.Button();
             this.noItem.SuspendLayout();
             this.hasItem.SuspendLayout();
             this.SuspendLayout();
@@ -98,16 +100,39 @@
             // rename
             // 
             this.rename.Name = "rename";
-            this.rename.Size = new System.Drawing.Size(152, 22);
+            this.rename.Size = new System.Drawing.Size(112, 22);
             this.rename.Text = "重命名";
             this.rename.Click += new System.EventHandler(this.rename_Click);
             // 
             // remove
             // 
             this.remove.Name = "remove";
-            this.remove.Size = new System.Drawing.Size(152, 22);
+            this.remove.Size = new System.Drawing.Size(112, 22);
             this.remove.Text = "删除";
             this.remove.Click += new System.EventHandler(this.remove_Click);
+            // 
+            // 新建ToolStripMenuItem1
+            // 
+            this.新建ToolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.hasItemCreateFile,
+            this.hasItemCreateDir});
+            this.新建ToolStripMenuItem1.Name = "新建ToolStripMenuItem1";
+            this.新建ToolStripMenuItem1.Size = new System.Drawing.Size(112, 22);
+            this.新建ToolStripMenuItem1.Text = "新建";
+            // 
+            // hasItemCreateFile
+            // 
+            this.hasItemCreateFile.Name = "hasItemCreateFile";
+            this.hasItemCreateFile.Size = new System.Drawing.Size(136, 22);
+            this.hasItemCreateFile.Text = "新建文件";
+            this.hasItemCreateFile.Click += new System.EventHandler(this.hasItemCreateFile_Click);
+            // 
+            // hasItemCreateDir
+            // 
+            this.hasItemCreateDir.Name = "hasItemCreateDir";
+            this.hasItemCreateDir.Size = new System.Drawing.Size(136, 22);
+            this.hasItemCreateDir.Text = "新建文件夹";
+            this.hasItemCreateDir.Click += new System.EventHandler(this.hasItemCreateDir_Click);
             // 
             // button1
             // 
@@ -117,7 +142,7 @@
             this.button1.TabIndex = 2;
             this.button1.Text = "←";
             this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.button1.Click += new System.EventHandler(this.back_Click);
             // 
             // button2
             // 
@@ -127,36 +152,35 @@
             this.button2.TabIndex = 3;
             this.button2.Text = "→";
             this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.button2.Click += new System.EventHandler(this.forward_Click);
             // 
-            // 新建ToolStripMenuItem1
+            // button3
             // 
-            this.新建ToolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.hasItemCreateFile,
-            this.hasItemCreateDir});
-            this.新建ToolStripMenuItem1.Name = "新建ToolStripMenuItem1";
-            this.新建ToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
-            this.新建ToolStripMenuItem1.Text = "新建";
+            this.button3.Location = new System.Drawing.Point(227, 13);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(75, 23);
+            this.button3.TabIndex = 4;
+            this.button3.Text = "撤销";
+            this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.undo_Click);
             // 
-            // hasItemCreateFile
+            // button4
             // 
-            this.hasItemCreateFile.Name = "hasItemCreateFile";
-            this.hasItemCreateFile.Size = new System.Drawing.Size(152, 22);
-            this.hasItemCreateFile.Text = "新建文件";
-            this.hasItemCreateFile.Click += new System.EventHandler(this.hasItemCreateFile_Click);
-            // 
-            // hasItemCreateDir
-            // 
-            this.hasItemCreateDir.Name = "hasItemCreateDir";
-            this.hasItemCreateDir.Size = new System.Drawing.Size(152, 22);
-            this.hasItemCreateDir.Text = "新建文件夹";
-            this.hasItemCreateDir.Click += new System.EventHandler(this.hasItemCreateDir_Click);
+            this.button4.Location = new System.Drawing.Point(326, 12);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(75, 23);
+            this.button4.TabIndex = 5;
+            this.button4.Text = "重做";
+            this.button4.UseVisualStyleBackColor = true;
+            this.button4.Click += new System.EventHandler(this.redo_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(821, 527);
+            this.Controls.Add(this.button4);
+            this.Controls.Add(this.button3);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.catalog);
@@ -183,7 +207,8 @@
         private System.Windows.Forms.ToolStripMenuItem 新建ToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem hasItemCreateFile;
         private System.Windows.Forms.ToolStripMenuItem hasItemCreateDir;
-
+        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button button4;
     }
 }
 

@@ -97,5 +97,10 @@ namespace FileSystem
             id.RemoveAt(index);
             return _id;
         }
+
+        public void reNameInode(string n_name, string o_name)
+        {
+            name[name.IndexOf(o_name)] = n_name;
+        }
     }
 }

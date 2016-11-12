@@ -65,7 +65,6 @@ namespace FileSystem.EntryInterface
         {
             string name = "新建文件夹";
             name = MemoryInterface.getInstance().addNewInodeTableItem(MemoryInterface.getInstance().getInodeByIndex(parent).getBlock(0), name, current);
-            MemoryInterface.getInstance().cleanBlock(blocks);
             MemoryInterface.getInstance().addNewInodeTableItem(blocks[0], "..", parent);
             MemoryInterface.getInstance().addNewInodeTableItem(blocks[0], ".", current);
             MemoryInterface.getInstance().getInodeByIndex(current).init(current, blocks, "文件夹", DateTime.Now);

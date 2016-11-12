@@ -77,6 +77,12 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StoreStructs\superBlock.cs" />
+    <Compile Include="UndoStructs\AddCmd.cs" />
+    <Compile Include="UndoStructs\Cmd.cs" />
+    <Compile Include="UndoStructs\CompoundEdit.cs" />
+    <Compile Include="UndoStructs\DeleteCmd.cs" />
+    <Compile Include="UndoStructs\EditCmd.cs" />
+    <Compile Include="UndoStructs\UndoableEdit.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
@@ -110,9 +116,7 @@
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="UndoStructs\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

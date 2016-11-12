@@ -13,7 +13,7 @@ namespace FileSystem
         private static MemoryInterface memory;
 
         
-        protected dataBlock[] datablock = new dataBlock[4096];        //模拟磁盘块的数组
+        private dataBlock[] datablock = new dataBlock[4096];        //模拟磁盘块的数组
 
         private MemoryInterface()
         {
@@ -90,26 +90,19 @@ namespace FileSystem
             IOFormatter.getInstance().Serialize(IOStream.getInstance(), datablock);
 
         }
-
-       public void cleanBlock( List<int> blocks)
-        {
-            foreach(int index in blocks)
-            {
-                datablock[index].data = null;
-            }
-            
-        }
         
         public void releaseInode(int index)
         {
-            List<int> id = new List<int>();
-            id.Add(index);
-            ((inodeBitmap)datablock[1].data).release(id);     //释放节点位图
+            ((inodeBitmap)datablock[1].data).release(index);     //释放节点位图
 
         }
 
         public void releaseBlock( List<int> index)
         {
+            foreach (int id in index)
+            {
+                datablock[id].data = null;
+            }
             ((blockBitmap)datablock[2].data).release(index);
         }
 
@@ -121,6 +114,22 @@ namespace FileSystem
         public dataBlock getDataBlockByIndex( int block_index)
         {
             return datablock[block_index];
+        }
+
+        public void setInodeByIndex(int node_index,inode node)
+        {
+            ((inodeBitmap)datablock[1].data).obtain(node_index);
+            ((inode[])datablock[3].data)[node_index]=node;
+        }
+
+        public void setDataBlockByIndex(List<int> block_index,List<dataBlock> block)
+        { 
+            ((blockBitmap)datablock[2].data).obtain(block_index);
+            for (int i = 0; i < block_index.Count; i++)
+            {
+                datablock[block_index[i]] = block[i];
+            }
+                
         }
 
         public List<int> getRequireInodes( int num)
