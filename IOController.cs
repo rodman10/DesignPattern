@@ -37,6 +37,7 @@ namespace FileSystem
             workDir = frontDir[0];
             frontDir.RemoveAt(0);
             EntryCmd.getInstance().die();
+            EntryCmd.getInstance().newOpe(workDir);
             listItems();
         }
 
@@ -51,6 +52,7 @@ namespace FileSystem
             workDir = backDir[0];
             backDir.RemoveAt(0);
             EntryCmd.getInstance().die();
+            EntryCmd.getInstance().newOpe(workDir);
             listItems();
         }
 
@@ -175,7 +177,6 @@ namespace FileSystem
             {
                 UndoManager.getInstance().redo();
                 workDir = EntryCmd.getInstance().redo();
-      
                 listItems();
                 MemoryInterface.getInstance().write();
             }

@@ -136,7 +136,7 @@ namespace FileSystem.EntryInterface
             inode _node = MemoryInterface.getInstance().getInodeByIndex(node);
             UndoManager.getInstance().newOpe(new EditCmd(node));
             string oldName=MemoryInterface.getInstance().getDataBlockByIndex(_node.getBlock(0)).reNameInode(newName, _index+2);      //在父目录的inodetable中进行修改
-            
+            entries[_index].name = newName;
             MemoryInterface.getInstance().write();
         }
 

@@ -6,6 +6,7 @@ using System.Text;
 
 namespace FileSystem.EntryInterface
 {
+    [Serializable]
     class File:Entry
     {
         public int size{ get; set; }
