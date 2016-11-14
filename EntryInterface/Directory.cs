@@ -13,6 +13,48 @@ namespace FileSystem.EntryInterface
 
         public List<Entry> entries {get; }
 
+        private void remove(ref CompoundCmd cmd, string name, int parent)
+        {
+            inode _node = MemoryInterface.getInstance().getInodeByIndex(parent);
+            cmd.newOpe(new EditCmd(parent));
+            int id = MemoryInterface.getInstance().getDataBlockByIndex(_node.getBlock(0)).removeInode(name);      //找到删除文件的inode
+            _node = MemoryInterface.getInstance().getInodeByIndex(id);
+            cmd.newOpe(new DeleteCmd(id));
+
+            if (_node.getType().Equals("文件夹"))
+            {
+                for (int i = 0; ; i++)       //释放inodetable中信息
+                {
+                    string _name = MemoryInterface.getInstance().getDataBlockByIndex(_node.getBlock(0)).findInode(2);
+
+                    if (_name != null)
+                    {
+                        remove(ref cmd, _name, id);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+
+            List<int> b = _node.getBlockPtr().ToList<int>();        //获得该节点占用的全部块
+            MemoryInterface.getInstance().releaseBlock(b);        //释放块位图
+            MemoryInterface.getInstance().releaseInode(id);     //释放节点位图           
+        }
+
+        private string initDir(List<int> blocks, int parent, int current)
+        {
+            string name = "新建文件夹";
+            name = MemoryInterface.getInstance().addNewInodeTableItem(MemoryInterface.getInstance().getInodeByIndex(parent).getBlock(0), name, current);
+
+            MemoryInterface.getInstance().addNewInodeTableItem(blocks[0], "..", parent);
+            MemoryInterface.getInstance().addNewInodeTableItem(blocks[0], ".", current);
+
+            MemoryInterface.getInstance().getInodeByIndex(current).init(current, blocks, "文件夹", DateTime.Now);
+            return name;
+        }
+
         public override object Clone()
         {
             using (MemoryStream stream = new MemoryStream())
@@ -74,18 +116,6 @@ namespace FileSystem.EntryInterface
             return entries;
         }
 
-        private string initDir(List<int> blocks, int parent, int current)
-        {
-            string name = "新建文件夹";
-            name = MemoryInterface.getInstance().addNewInodeTableItem(MemoryInterface.getInstance().getInodeByIndex(parent).getBlock(0), name, current);
-           
-            MemoryInterface.getInstance().addNewInodeTableItem(blocks[0], "..", parent);
-            MemoryInterface.getInstance().addNewInodeTableItem(blocks[0], ".", current);
-            
-            MemoryInterface.getInstance().getInodeByIndex(current).init(current, blocks, "文件夹", DateTime.Now);
-            return name;
-        }
-
         public override string createEntry(string _name ,string type)
         {
             int parent = -1;
@@ -138,37 +168,7 @@ namespace FileSystem.EntryInterface
             string oldName=MemoryInterface.getInstance().getDataBlockByIndex(_node.getBlock(0)).reNameInode(newName, _index+2);      //在父目录的inodetable中进行修改
             entries[_index].name = newName;
             MemoryInterface.getInstance().write();
-        }
-
-        private void remove(ref CompoundCmd cmd, string name, int parent)
-        {
-            inode _node = MemoryInterface.getInstance().getInodeByIndex(parent);
-            cmd.newOpe(new EditCmd(parent));
-            int id = MemoryInterface.getInstance().getDataBlockByIndex(_node.getBlock(0)).removeInode(name);      //找到删除文件的inode
-            _node = MemoryInterface.getInstance().getInodeByIndex(id);
-            cmd.newOpe(new DeleteCmd(id));
-
-            if (_node.getType().Equals("文件夹"))
-            {
-                for (int i = 0; ; i++)       //释放inodetable中信息
-                {
-                    string _name = MemoryInterface.getInstance().getDataBlockByIndex(_node.getBlock(0)).findInode(2);
-
-                    if (_name != null)
-                    { 
-                        remove(ref cmd, _name, id);
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-            }
-
-            List<int> b = _node.getBlockPtr().ToList<int>();        //获得该节点占用的全部块
-            MemoryInterface.getInstance().releaseBlock(b);        //释放块位图
-            MemoryInterface.getInstance().releaseInode(id);     //释放节点位图           
-        }
+        }       
 
         public override void removeEntry(int selectedItem,string name)
         {            

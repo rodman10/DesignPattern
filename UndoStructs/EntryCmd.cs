@@ -4,14 +4,30 @@ using System.Collections.Generic;
 
 namespace FileSystem.UndoStructs
 {
-    class EntryCmd:AbstractUndoableCmd
+    class EntryCmd:AbstractUndoableCmd<Directory>
     {
-        protected List<Directory> entries;
         private int index = 0;
         private static EntryCmd entryCmd;
+
+        public Directory tempDir
+        {
+            get
+            {
+                if (index == list.Count)
+                {
+                    return list[index - 1];
+                }
+                if (index == 0)
+                {
+                    return list[0];
+                }
+                return list[index];
+            }
+        }
+
         private EntryCmd()
         {
-            entries = new List<Directory>();
+            list = new List<Directory>();
         }
 
         public static EntryCmd getInstance()
@@ -23,46 +39,44 @@ namespace FileSystem.UndoStructs
             return entryCmd;
         }
 
-        public Directory getEntry()
+        public override void undo()
         {
-            return entries[index];
-        }
-
-        public new Directory undo()
-        {
-            if (index == entries.Count)
+            if (index == list.Count)
             {
                 canUndo = false;
-                return entries[index-1];
+                return;
             }
             canRedo = true;
             index++;
-            return entries[index];
         }
 
 
-        public new Directory redo()
+        public override void redo()
         {
             if (index == 0)
             {
                 canRedo = false;
-                return entries[0];
+                return;
             }
-
             canUndo = true;
             index--;
-            return entries[index];
         }
 
         public override void die()
         {
-            entries.Clear();
+            list.Clear();
         }
-
 
         public void newOpe(Directory entry)
         {
-            entries.Insert(0, (Directory)entry.Clone());
+            if (index > 0)
+            {
+                list.RemoveRange(0, index);
+            }
+            index = 0;
+            canUndo = true;
+            canRedo = false;
+            list.Insert(0, (Directory)entry.Clone());
         }
     }
 }

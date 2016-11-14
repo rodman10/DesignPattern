@@ -11,7 +11,6 @@ namespace FileSystem
     {
         private Directory workDir;      //当前工作目录
         private File selectedItem;       //选中的文件或文件夹
-
         private ListView listView;
         private List<Directory> backDir = new List<Directory>();        //记录上一个访问的文件
         private List<Directory> frontDir = new List<Directory>();
@@ -24,7 +23,6 @@ namespace FileSystem
             EntryCmd.getInstance().newOpe(workDir);
             listItems();     
         }
-
 
         public void back()
         {
@@ -71,7 +69,6 @@ namespace FileSystem
             }
         }
         
-
         private void setViewItem(string _name, string type,int size,DateTime _time)     //显示文件属性
         {
             ListViewItem item=new ListViewItem();
@@ -164,7 +161,8 @@ namespace FileSystem
             if (UndoManager.getInstance().CanUndo())
             {
                 UndoManager.getInstance().undo();
-                workDir = EntryCmd.getInstance().undo();
+                EntryCmd.getInstance().undo();
+                workDir = (Directory)EntryCmd.getInstance().tempDir.Clone();
                 listItems();
                 MemoryInterface.getInstance().write();
             }
@@ -176,7 +174,8 @@ namespace FileSystem
             if (UndoManager.getInstance().CanRedo())
             {
                 UndoManager.getInstance().redo();
-                workDir = EntryCmd.getInstance().redo();
+                EntryCmd.getInstance().redo();
+                workDir = (Directory)EntryCmd.getInstance().tempDir.Clone();
                 listItems();
                 MemoryInterface.getInstance().write();
             }

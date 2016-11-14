@@ -18,7 +18,7 @@ namespace FileSystem.UndoStructs
             base.undo();
             MemoryInterface.getInstance().setInodeByIndex(node.id, node);
             List<int> temp = new List<int>();
-            MemoryInterface.getInstance().setDataBlockByIndex(node.getBlockPtr().ToList<int>(),blocks);
+            MemoryInterface.getInstance().setDataBlockByIndex(node.getBlockPtr().ToList<int>(),list);
                    
         }
 

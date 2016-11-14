@@ -12,6 +12,23 @@ namespace FileSystem.EntryInterface
         public int size{ get; set; }
         public string content { get; set; }
 
+        private int calculate(inode _node)     //计算文件大小
+        {
+            int[] ptr = _node.getBlockPtr();
+            string content = "";
+            for (int i = 0; i < 13; i++)        //遍历该文件的所有块，计算大小
+            {
+                if (MemoryInterface.getInstance().getDataBlockByIndex(ptr[i]) != null && MemoryInterface.getInstance().getDataBlockByIndex(ptr[i]).data != null && !MemoryInterface.getInstance().getDataBlockByIndex(ptr[i]).data.Equals(""))
+                {
+                    content += MemoryInterface.getInstance().getDataBlockByIndex(ptr[i]).data;
+                    continue;
+                }
+                break;
+            }
+            byte[] sarr = Encoding.Default.GetBytes(content);
+            return sarr.Length;
+        }
+
         public File(inode _node , string name)
         {
             string type = _node.getType();
@@ -43,25 +60,6 @@ namespace FileSystem.EntryInterface
         {
             return content;
         }
-
-        private int calculate(inode _node)     //计算文件大小
-        {
-            int[] ptr = _node.getBlockPtr();
-            string content = "";
-            for (int i = 0; i < 13; i++)        //遍历该文件的所有块，计算大小
-            {
-                if (MemoryInterface.getInstance().getDataBlockByIndex(ptr[i]) != null && MemoryInterface.getInstance().getDataBlockByIndex(ptr[i]).data != null && !MemoryInterface.getInstance().getDataBlockByIndex(ptr[i]).data.Equals(""))
-                {
-                    content += MemoryInterface.getInstance().getDataBlockByIndex(ptr[i]).data;
-                    continue;
-                }
-                break;
-            }
-            byte[] sarr = Encoding.Default.GetBytes(content);
-            return sarr.Length;
-        }
-
-
 
         public override bool write(string content)
         {

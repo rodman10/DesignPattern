@@ -22,12 +22,12 @@ namespace FileSystem.UndoStructs
                 new_data.Add(MemoryInterface.getInstance().getDataBlockByIndex(node.getBlock(i)));
             }
         }
+
         public override void undo()
         {
             base.undo();
             MemoryInterface.getInstance().setInodeByIndex(node.id, node);
-            List<int> temp = new List<int>();
-            MemoryInterface.getInstance().setDataBlockByIndex(node.getBlockPtr().ToList<int>(),blocks);
+            MemoryInterface.getInstance().setDataBlockByIndex(node.getBlockPtr().ToList<int>(),list);
 
         }
 
@@ -35,7 +35,6 @@ namespace FileSystem.UndoStructs
         {
             base.redo();
             MemoryInterface.getInstance().setInodeByIndex(node.id, node);
-            List<int> temp = new List<int>();
             MemoryInterface.getInstance().setDataBlockByIndex(node.getBlockPtr().ToList<int>(), new_data);
 
         }

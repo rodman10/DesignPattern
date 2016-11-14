@@ -15,6 +15,5 @@ namespace FileSystem.UndoStructs
         void die();
         void newOpe(UndoableCmd cmd);
 
-
     }
 }

@@ -9,7 +9,6 @@ namespace FileSystem
     {
         public object data { set; get; }
 
-
         public object Clone()
         {
             using (MemoryStream stream = new MemoryStream())

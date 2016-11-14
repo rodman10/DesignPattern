@@ -25,15 +25,15 @@ namespace FileSystem.UndoStructs
 
         public override void undo()
         {
-            if (index == opes.Count)
+            if (index == list.Count)
             {
                 canUndo = false;
                 return;
             }
-            if (opes[index].CanUndo())
+            if (list[index].CanUndo())
             {
                 canRedo = true;
-                opes[index].undo();
+                list[index].undo();
                 index++;
             }
         }
@@ -45,14 +45,13 @@ namespace FileSystem.UndoStructs
                 canRedo = false;
                 return;
             }
-            if (opes[index - 1].CanRedo())
+            if (list[index - 1].CanRedo())
             {
                 canUndo = true;
                 index--;
-                opes[index].redo();
+                list[index].redo();
             }
         }
-     
-        
+             
     }
 }
