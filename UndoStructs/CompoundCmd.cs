@@ -51,7 +51,7 @@ namespace FileSystem.UndoStructs
 
         public override void newOpe(UndoableCmd cmd)
         {
-            if (index > 0)
+            if (index > 0 && list.Count > 0)
             {
                 list.RemoveRange(0, index);
             }

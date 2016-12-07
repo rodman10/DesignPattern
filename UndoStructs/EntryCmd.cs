@@ -69,7 +69,7 @@ namespace FileSystem.UndoStructs
 
         public void newOpe(Directory entry)
         {
-            if (index > 0)
+            if (index > 0 && list.Count > 0 )
             {
                 list.RemoveRange(0, index);
             }
